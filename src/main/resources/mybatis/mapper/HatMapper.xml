@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.hr.mapper.HatMapper">
+  <select id="selectprovince" resultType="HatProvince">
+  	select * from hat_province
+  </select>
+  <select id="selectcity" resultType="HatCity">
+  	select * from hat_city where father = #{provinceID}
+  </select>
+  <select id="selectarea" resultType="HatArea">
+  	select * from hat_area where father = #{cityID}
+  </select>
+  </mapper>

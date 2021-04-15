@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.BusLineMapper">
+	<!-- 映射关系1 -->
+	<resultMap type="BusLine" id="linecompany" autoMapping="true">
+		<id column="line_id" property="lineId" />
+		<association property="busCompany" javaType="BusCompany" autoMapping="true">
+			<id column="company_id" property="companyId" />
+		</association>
+	</resultMap>
+	
+	<!-- 映射关系2 -->
+	<resultMap type="BusStop" id="busstop" autoMapping="true">
+		<id column="stop_id" property="stopId"/>
+		<association property="area" javaType="HatArea" autoMapping="true">
+  			<id column="id" property="id"/>
+  			<result column="area" property="area"/>
+  			<association property="city" javaType="HatCity" autoMapping="true">
+	  			<id column="id" property="id" />
+	  			<result column="city" property="city"/>
+		  			<association property="province" javaType="HatProvince" autoMapping="true">
+		  				<id column="id" property="id"/>
+		  				<result column="province" property="province"/>
+		  			</association>
+  				</association>
+  		</association>
+		<association property="stopLine" javaType="StopLine" autoMapping="true">
+			<id column="stop_line_id" property="stopLineId"/>
+		</association>
+	</resultMap>
+	
+	<!-- 查询方法 -->
+	<select id="queryAll" resultMap="linecompany">
+		SELECT
+		*
+		FROM
+		bus_line AS bl
+		JOIN bus_company AS bc ON bl.line_company = bc.company_id
+		<if test="lineName != null and lineName != ''">
+			AND bl.line_name LIKE CONCAT(CONCAT('%',#{lineName}),'%')
+		</if>
+		<if test="companyName != null and companyName != ''">
+			AND bc.company_name LIKE CONCAT(CONCAT('%',#{companyName}),'%')
+		</if>
+	</select>
+
+	<!-- 新增 -->
+	<insert id="insertBusLine">
+		INSERT INTO bus_line VALUES(null,#{lineName},#{lineCompany},#{lineStatus})
+	</insert>
+
+	<!-- 更新 -->
+	<update id="updateBusLine">
+		UPDATE bus_line AS bl
+		SET bl.line_name = #{lineName},
+		bl.line_company = #{lineCompany},
+		bl.line_status = #{lineStatus}
+		WHERE
+		bl.line_id = #{lineId}
+	</update>
+
+	<!-- 删除汽车信息 -->
+	<delete id="deleteBusLine">
+		delete from bus_line where line_id in
+		<foreach collection="lineIds" item="lineId" open="(" close=")"
+			separator=",">
+			#{lineId}
+		</foreach>
+	</delete>
+
+	<!-- 查询某条线路的所有站点 -->
+	<select id="querySingleLine" resultMap="busstop">
+		SELECT
+			*
+		FROM
+			bus_stop AS bs
+		JOIN stop_line AS sln ON bs.stop_id = sln.g_stop_id
+		JOIN hat_area AS ha ON bs.stop_area = ha.areaID
+		JOIN hat_city AS c ON ha.father = c.cityID
+		JOIN hat_province AS p ON c.father = p.provinceID
+		WHERE
+			sln.g_line_id = #{lineId}
+		ORDER BY sln.line_stop_index
+		<choose>
+			<when test="shangxia == 1">
+				DESC
+			</when>
+			<otherwise>
+				ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 修改站点在线路中的顺序 -->
+	<update id="updateStopQueue">
+		UPDATE stop_line AS sl
+		SET sl.line_stop_index = #{counter}
+		WHERE
+			sl.g_stop_id = #{stopId}
+		AND sl.g_line_id = #{lineId}
+	</update>
+	
+	<!-- 删除某天线路中的某一站点 -->
+	<delete id="deleteLineStop">
+		DELETE
+		FROM
+			stop_line
+		WHERE
+			g_line_id = #{lineId}
+		AND g_stop_id in
+		<foreach collection="stopIds" item="stopId" open="(" close=")" separator=",">
+			#{stopId}
+		</foreach>
+	</delete>
+	
+	<!-- 修改车队里面的车辆，并保存 -->
+	<update id="updateBus">
+		UPDATE bus AS b
+		SET b.bus_team = #{busTeam}
+		WHERE
+			b.bus_id in
+		<foreach collection="busIds" item="busId" open="(" close=")" separator=",">
+			#{busId}
+		</foreach>
+	</update>
+	
+	<!-- 根据线路id查询对应的车队id -->
+	<select id="queryTeamIdBylineId" resultType="Integer">
+		SELECT
+			team_id
+		FROM
+			bus_team AS t
+		WHERE
+			t.team_line = #{lineId}
+	</select>
+
+</mapper>

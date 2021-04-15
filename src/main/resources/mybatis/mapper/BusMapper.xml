@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.hr.mapper.BusMapper">
+  
+  <resultMap type="Bus" id="BusToDriver" autoMapping="true">
+  	<id column="bus_id" property="busId"/>
+  	<result column="bus_number" property="busNumber"/>
+  	<result column="bus_status" property="busStatus"/>
+  	<association property="busDrivers" javaType="BusDriver" autoMapping="true">
+  		<id column="driver_id" property="driverId"/>
+  		<result column="driver_name" property="driverName"/>		
+  		<result column="driver_phone" property="driverPhone"/>
+  	</association>
+  	<association property="busTeams" javaType="BusTeam" autoMapping="true">
+  		<id column="team_id" property="teamId"/>
+  		<result column="team_name" property="teamName"/>
+  		<association property="busCompanys" javaType="BusCompany" autoMapping="true">
+  			<id column="company_id" property="companyId"/>
+  			<result column="company_name" property="companyName"/>
+  		</association>
+  	</association>
+  </resultMap>
+  
+  <!-- 查询所有汽车的信息 -->
+ 	<select id="quaryAllBus" resultMap="BusToDriver">
+ 		select * from bus b
+ 			join bus_driver d on d.driver_id=b.bus_driver
+ 			join bus_team t on t.team_id=b.bus_team
+ 			join bus_company c on c.company_id=t.team_company 
+ 		<where>
+ 			<if test="busNumber!=null and busNumber!=''">
+ 				and b.bus_number like CONCAT(CONCAT('%',#{busNumber}),'%')
+ 			</if>
+ 			<if test="driverName!=null and driverName!=''">
+ 				and d.driver_name like CONCAT(CONCAT('%',#{driverName}),'%')
+ 			</if>
+ 		</where>
+ 		ORDER BY
+			bus_team
+ 	</select>
+ 	
+ 	<!-- 插入汽车信息 -->
+ 	<insert id="insertBus">
+ 		insert into bus values(null,#{busTeam},#{busDriver},#{busNumber},#{busStatus})
+ 	</insert>
+ 	
+ 	<!-- 删除汽车信息 -->
+ 	<delete id="deleteBus">
+		delete from bus where bus_id in
+		<foreach collection="busIds" item="busId" open="(" close=")" separator=",">
+			#{busId}
+		</foreach>
+	</delete>
+	
+	<!-- 更新汽车信息 -->
+	<update id="updateBus">
+		update bus set bus_team=#{busTeam},bus_driver=#{busDriver},
+						bus_number=#{busNumber},bus_status=#{busStatus}
+				where bus_id = #{busId}
+	</update>
+ 	
+ 	<!-- 根据汽车id查询该汽车司机 -->
+ 	<select id="quaryDriverIdByBusId" resultType="Bus">
+ 		select * from bus where bus_id = #{busId}
+ 	</select>
+  </mapper>

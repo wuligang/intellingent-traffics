@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.ProplemMapper">
+	<!-- 查询所有 -->
+	<select id="allProplem" resultType="Proplem">
+		select * from proplem
+	</select>
+	<!-- 新提问两天内 -->
+	<select id="newProplem" resultType="Proplem">
+		select * from proplem as p where DATE_SUB(CURDATE(),INTERVAL 2 DAY) &lt;=
+		DATE(p.proplem_time) and p.proplem_status = 0
+	</select>
+	<!-- 查询状态 -->
+	<select id="stateProblem" resultType="Proplem">
+		select * from proplem
+	</select>
+	<!-- 更改状态 -->
+	<update id="updateproblem">
+		update proplem set proplem_auditing = 1 where proplem_id = #{proplemId}
+	</update>
+	<!-- 根据id查询近两天的新提问 -->
+	<select id="selectNsById" resultType="Proplem">
+		select * from proplem as p where
+		p.proplem_id = #{proplemId}
+	</select>
+	<!-- 未处理 -->
+	<select id="noChuLi" resultType="Proplem">
+		select * from proplem where proplem_status = 0
+	</select>
+	<!-- 新反馈插入信息 -->
+	<insert id="noInsert">
+		INSERT INTO proplem_feedback
+		(feedback_info,feedback_time,feedback_author,feedback_proplem) VALUES
+		(#{feedbackInfo}, NOW(),null ,null);
+	</insert>
+	
+	<resultMap type="ProplemFeedback" id="proplemAll" autoMapping="true">
+		<id column="feedid" property="feedbackId"/>
+	</resultMap>
+	<!-- 新反馈 -->
+	<select id="newProplemFeedback" resultMap="proplemAll">
+		select  feedid, feedback_info, feedback_time, feedback_author, feedback_proplem from proplem_feedback AS pf where DATE_SUB(CURDATE(),INTERVAL 2
+		DAY) &lt;= DATE(pf.feedback_time)
+	</select>
+	<!-- 根据id查询近两天的新反馈 -->
+	<select id="selectPFById" resultType="ProplemFeedback">
+		select * from proplem_feedback where feedid = #{feedbackId}
+	</select>
+	<!-- 查询所有反馈 -->
+	<select id="allProplemFeedback" resultType="ProplemFeedback">
+		select * from proplem_feedback
+	</select>
+</mapper>

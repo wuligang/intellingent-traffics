@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.UserRoleMapper">
+	
+	<resultMap type="Role" id="RoleJurisdiction" autoMapping="true">
+		<id column="r_id" property="rId"/>
+		<result column="r_name" property="rName"/>
+		<result column="r_note" property="rNote"/>
+		<collection property="jurisdictions" javaType="List" ofType="Jurisdiction" autoMapping="true">
+			<id column="j_id" property="jId"/>
+		</collection>
+	</resultMap>
+	
+	<select id="rueryRID" resultType="int">
+		SELECT r_id FROM user_role AS ur WHERE ur.u_id = #{uId}
+	</select>
+	
+	<select id="queryRole" resultMap="RoleJurisdiction">
+	SELECT
+		r.r_id,
+		r.r_name,
+		r.r_note,
+		j.j_id,
+		j.j_page,
+		j.j_pid
+	FROM
+		t_role AS r
+	LEFT JOIN user_role AS ur ON r.r_id = ur.r_id
+	LEFT JOIN role_jurisdiction AS rj ON r.r_id = rj.r_id
+	LEFT JOIN t_jurisdiction AS j ON rj.j_id = j.j_id
+	WHERE
+		r.r_id = #{rId}
+	</select>
+
+	<select id="queryAllRole" resultMap="RoleJurisdiction">
+	SELECT
+		r.r_id,
+		r.r_name,
+		r.r_note,
+		j.j_id,
+		j.j_page,
+		j.j_pid
+	FROM
+		t_role AS r
+	LEFT JOIN user_role AS ur ON r.r_id = ur.r_id
+	LEFT JOIN role_jurisdiction AS rj ON r.r_id = rj.r_id
+	LEFT JOIN t_jurisdiction AS j ON rj.j_id = j.j_id
+	</select>
+</mapper>

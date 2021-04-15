@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.hr.mapper.BusDriverMapper">
+  
+  <!-- 插入司机用户 -->
+  <insert id="insertBusDriver" useGeneratedKeys="true" keyProperty="driverId">
+  	insert into bus_driver(driver_name,driver_phone,driver_status,driver_team)
+  					values(#{driverName},#{driverPhone},#{driverStatus},#{driverTeam})
+  </insert>
+  
+  <!-- 更新司机用户 -->
+  <update id="updateBusDriver">
+  	update bus_driver set driver_name = #{driverName},driver_phone=#{driverPhone},
+  							driver_status=#{driverStatus},driver_team=#{driverStatus}
+  					where driver_id = #{driverId}
+  </update>
+  
+  </mapper>

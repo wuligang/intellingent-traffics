@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.hr.mapper.BusCompanyMapper">
+  
+  <!-- 查询所有公司 -->
+  <select id="quaryAllBusCompany" resultType="BusCompany">
+  	select * from bus_company
+  </select>
+  
+  <!-- 根据汽车公司查询id -->
+  <select id="quaryCompanyIdByName" resultType="BusCompany">
+  	select * from bus_company where company_name = #{companyName}
+  </select>
+  
+  </mapper>

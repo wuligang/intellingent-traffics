@@ -1,0 +1,51 @@
+@CHARSET "UTF-8";
+#rightmodle{
+		position:relative;
+		float:right;
+		width: 55%;
+		height:100%;
+		display:inline-block;
+	}
+	#righthead{
+		height: 45%;
+	}
+	#leixing{
+		position:relative;
+		float: right;
+		left: -40px;
+		top:10px;
+		font-size: 10px;
+	}
+	#information{
+		position:relative;
+		top:-10px;
+		left: 50px;
+		text-align: center;
+		
+	}
+	#righttext{
+		height: 55%;
+	}
+	#righttext a{
+		position:relative;
+		float: right;
+		left: -40px;
+		top:140px;
+		font-size: 10px;
+	}
+	#righttext textarea{
+		position:relative;
+		width: 80%;
+		height: 200px;
+		background-color: #D3D3D3;
+		top: 170px;
+		left: 80px;
+	}
+	#sumbit input{
+		color: #ffffff;
+	    background: #359be8;
+	    border: 1px solid #cccccc;
+	    margin: 10px 2% 0px 2px;
+	    position: relative;
+	    top:200px;
+	}

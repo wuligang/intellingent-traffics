@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<!-- 驼峰命名 -->
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="logImpl" value="STDOUT_LOGGING" />
+	</settings>
+
+	<plugins>
+		<plugin interceptor="com.github.pagehelper.PageHelper">
+			<property name="dialect" value="mysql" />
+			<property name="rowBoundsWithCount" value="true" />
+		</plugin>
+		<plugin interceptor="com.github.abel533.mapperhelper.MapperInterceptor">
+			<!--通用Mapper接口，多个通用接口用逗号隔开 -->
+			<property name="mappers" value="com.github.abel533.mapper.Mapper" />
+		</plugin>
+	</plugins>
+
+</configuration>  

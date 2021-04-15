@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.BusSiteMapper">
+	<!-- 站点管理 -->
+	<resultMap type="BusStop" id="BusSite" autoMapping="true">
+		<id column="stop_id" property="stopId" />
+		<result column="stop_name" property="stopName" />
+		<association property="area" javaType="HatArea"
+			autoMapping="true">
+			<id column="id" property="id" />
+			<result column="area" property="area" />
+			<association property="city" javaType="HatCity"
+				autoMapping="true">
+				<id column="id" property="id" />
+				<result column="city" property="city" />
+				<association property="province" javaType="HatProvince"
+					autoMapping="true">
+					<id column="id" property="id" />
+					<result column="province" property="province" />
+				</association>
+			</association>
+		</association>
+
+	</resultMap>
+	<!-- 查询站点的所有信息 -->
+	<select id="selectAllBusStop" resultMap="BusSite">
+		SELECT
+		*
+		FROM
+		bus_stop AS s
+		JOIN hat_area AS a ON s.stop_area = a.areaID
+		JOIN hat_city AS c ON
+		a.father = c.cityID
+		JOIN hat_province AS p ON c.father = p.provinceID
+ 			<if test="stopName!=null and stopName!='' ">
+ 				and s.stop_name like CONCAT(CONCAT('%',#{stopName}),'%')
+ 			</if>
+	</select>
+	<!-- 插入站点 -->
+	<insert id="addBusStop">
+		insert into bus_stop
+		values(null,#{stopName},#{stopName},#{stopInfo},#{stopStatus},#{stopArea})
+	</insert>
+	<!-- 修改站点信息 -->
+	<update id="updateBusStop">
+		UPDATE bus_stop
+		SET stop_name = #{stopName},
+		stop_status = #{stopStatus},
+		stop_area = #{stopArea} WHERE stop_id =
+		#{stopId};
+	</update>
+	<!-- 删除站点 -->
+	<delete id="delBusStop">
+		DELETE
+		FROM
+		bus_stop
+		WHERE
+		stop_id = #{stopId}
+	</delete>
+	<!-- 根据id查询 -->
+	<select id="selectByPrimaryKey" resultType="BusStop">
+		select * from bus_stop WHERE stop_id = #{stopId}
+	</select>
+</mapper>

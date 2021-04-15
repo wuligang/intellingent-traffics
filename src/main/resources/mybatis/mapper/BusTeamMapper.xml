@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.hr.mapper.BusTeamMapper">
+  
+  <resultMap type="BusTeam" id="BusTeams" autoMapping="true">
+  		<id column="team_id" property="teamId"/>
+  		<result column="team_name" property="teamName"/>
+  		<result column="team_company" property="teamCompany"/>
+  		<association property="busCompanys" javaType="BusCompany" autoMapping="true">
+  			<id column="company_id" property="companyId"/>
+  			<result column="company_name" property="companyName"/>
+  		</association>
+  </resultMap>
+  
+  <resultMap type="Bus" id="BusToDriver" autoMapping="true">
+  	<id column="bus_id" property="busId"/>
+  	<result column="bus_number" property="busNumber"/>
+  	<result column="bus_status" property="busStatus"/>
+  	<association property="busDrivers" javaType="BusDriver" autoMapping="true">
+  		<id column="driver_id" property="driverId"/>
+  		<result column="driver_name" property="driverName"/>		
+  		<result column="driver_phone" property="driverPhone"/>
+  	</association>
+  	<association property="busTeams" javaType="BusTeam" autoMapping="true">
+  		<id column="team_id" property="teamId"/>
+  		<result column="team_name" property="teamName"/>
+  		<association property="busCompanys" javaType="BusCompany" autoMapping="true">
+  			<id column="company_id" property="companyId"/>
+  			<result column="company_name" property="companyName"/>
+  		</association>
+  	</association>
+  </resultMap>
+  
+  <!-- 移除车辆 -->
+  <update id="quaryupdatato">
+   update bus SET bus_status=0 where bus_id in
+   <foreach collection="ids" item="id" open="(" close=")"
+			separator="," >
+			#{id}
+		</foreach>
+  </update>
+  
+  <!-- 添加车辆 -->
+  <update id="quaryupdata">
+   update bus SET bus_team=#{teamId},bus_status=1 where bus_id in
+   <foreach collection="ids" item="id" open="(" close=")"
+			separator="," >
+			#{id}
+		</foreach>
+  </update>
+  
+  <!-- 搜索车队 -->
+  <select id="quaryserach" resultMap="BusTeams">
+  	select * from bus_team
+  	inner join bus_company on bus_team.team_company=bus_company.company_id
+  	<where>
+ 			<if test="serach1!=null and serach1!='' ">
+ 				and team_name like CONCAT(CONCAT('%',#{serach1}),'%')
+ 			</if>
+ 			<if test="serach2!=null and serach2!=''">
+ 				and company_name like CONCAT(CONCAT('%',#{serach2}),'%')
+ 			</if>
+ 		</where>
+  </select>
+  
+  <!-- 查询本车队车辆 -->
+  <select id="quaryAllBus" parameterType="Map" resultMap="BusToDriver">
+  	select * from bus b
+ 			join bus_driver d on d.driver_id=b.bus_driver
+ 			join bus_team t on t.team_id=b.bus_team
+ 			join bus_company c on c.company_id=t.team_company 
+ 		<where>
+ 			<if test="BusTeam>=0">
+ 				and b.bus_team like #{BusTeam} and bus_status!=0
+ 			</if>
+ 			<if test="BusNumber!=null and BusNumber!=''">
+ 				and b.bus_number like CONCAT(CONCAT('%',#{BusNumber}),'%')
+ 			</if>			
+ 			<if test="DriverName!=null and DriverName!=''">
+ 				and d.driver_name like CONCAT(CONCAT('%',#{DriverName}),'%')
+ 			</if>
+ 		</where>
+ 		
+  </select>
+  
+  <!-- 查询非本车队车辆 -->
+  <select id="quarynoAllBus" parameterType="Map" resultMap="BusToDriver">
+  	select * from bus b
+ 			join bus_driver d on d.driver_id=b.bus_driver
+ 			join bus_team t on t.team_id=b.bus_team
+ 			join bus_company c on c.company_id=t.team_company 
+ 		<where>
+ 			<if test="BusTeam>=0">
+ 				and b.bus_team not like #{BusTeam}
+ 			</if>
+ 			<if test="BusNumber!=null and BusNumber!=''">
+ 				and b.bus_number like CONCAT(CONCAT('%',#{BusNumber}),'%')
+ 			</if>			
+ 			<if test="DriverName!=null and DriverName!=''">
+ 				and d.driver_name like CONCAT(CONCAT('%',#{DriverName}),'%')
+ 			</if>
+ 			<if test="TeamName!=null and TeamName!=''">
+ 				and t.team_name like CONCAT(CONCAT('%',#{TeamName}),'%')
+ 			</if>
+ 			<if test="CompanyName!=null and CompanyName!=''">
+ 				and c.company_name like CONCAT(CONCAT('%',#{CompanyName}),'%')
+ 			</if>
+ 		</where>
+ 		
+  </select>
+  
+  <!-- 修改 -->
+  <update id="quarybusedit">
+  	update bus_team SET team_name=#{teamName},team_company=#{companyName} where team_id=#{teamId} 
+  </update>
+  
+  <!-- 全查 -->
+  <select id="quaryselect" resultType="Export">
+  	select team_id,team_name,company_name,line_name from bus_team 
+  	inner join bus_line	on bus_team.team_line=bus_line.line_company
+  	inner join bus_company on bus_team.team_company=bus_company.company_id
+   </select>
+  
+  <!-- 根据公司id查询有哪些大队 -->
+  <select id="quaryTeamByCompanyId" resultType="BusTeam">
+  	select * from bus_team where team_company = #{companyId}
+  </select>
+  
+  
+  <!-- 根据大队名称查询大队 -->
+  <select id="quaryTeamByName" resultType="BusTeam">
+  	select * from bus_team where team_name = #{teamName}
+  </select>
+  
+  <!-- 根据公司id查线路名 -->
+  <select id="quarybusline" resultType="BusLine">
+  	select * from bus_line where line_company = #{companyId}
+  </select>
+  
+  <!-- 插入新车队 -->
+  <insert id="quarybusadd">
+  	INSERT INTO bus_team (team_name,team_company,team_line) VALUES (#{teamName},#{companyName},#{lineName});
+  </insert>
+  
+  <!-- 删除 -->
+  <delete id="quarydelete">
+   delete from bus_team where team_id in
+   <foreach collection="ids" item="id" open="(" close=")"
+			separator="," >
+			#{id}
+		</foreach>
+  </delete>
+  </mapper>
